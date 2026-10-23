@@ -1427,6 +1427,14 @@ def main():
     p.add_argument("--no_gifs", action="store_true")
     p.add_argument("--channels_to_plot", type=int, nargs="+", default=None)
     args = p.parse_args()
+    if not args.ssh_only:
+        missing = [n for n in ("hadsst_path", "crutem_path", "icoads_path", "en4_zarr_path")
+                   if getattr(args, n) is None]
+        if missing:
+            p.error("missing " + ", ".join("--" + n for n in missing)
+                    + " (required unless --ssh_only)")
+    if (args.use_ssh_obs or args.ssh_only) and args.duacs_path is None:
+        p.error("--duacs_path is required with --use_ssh_obs or --ssh_only")
 
     # ---- multi-GPU setup -------------------------------------------------------
     world_size = int(os.environ.get("WORLD_SIZE", 1))

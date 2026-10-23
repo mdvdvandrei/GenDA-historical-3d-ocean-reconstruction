@@ -1019,10 +1019,10 @@ def main():
     p.add_argument("--climatology", required=True)
 
     # Data product paths
-    p.add_argument("--hadsst_path", default=None)
-    p.add_argument("--crutem_path", default=None)
-    p.add_argument("--icoads_path", default=None)
-    p.add_argument("--en4_path", default=None)
+    p.add_argument("--hadsst_path", required=True)
+    p.add_argument("--crutem_path", required=True)
+    p.add_argument("--icoads_path", required=True)
+    p.add_argument("--en4_path", required=True)
 
     # Member selection
     p.add_argument("--member", type=str, default="r47i1p1f1",
@@ -1090,6 +1090,8 @@ def main():
                    help="Skip GIF generation (only save results.pt and args.json)")
     p.add_argument("--channels_to_plot", type=int, nargs="+", default=None)
     args = p.parse_args()
+    if args.observe_ssh and args.duacs_path is None:
+        p.error("--duacs_path is required with --observe_ssh")
 
     # ---- multi-GPU setup ------------------------------------------------------
     world_size = int(os.environ.get("WORLD_SIZE", 1))
