@@ -6,7 +6,7 @@ Code for A. Medvedev, V. Cooper and G. Manucharyan, *Reconstructing global ocean
 
 ![Cross-model test, July 1971](docs/cesm2_test_july1971.png)
 
-*Cross-model test for July 1971. The prior is trained on MIROC6 and the truth comes from CESM2, a structurally different climate model. The top row shows pseudo-observations sampled from CESM2 with the real 1971 coverage, the middle row the SDA reconstruction, and the bottom row the CESM2 truth. Panels show anomalies of SST, temperature at 150 m and 700 m, and sea surface height, which is not assimilated and is recovered only through the learned covariances.*
+*Cross-model test for July 1971. The prior is trained on MIROC6 and the truth comes from CESM2, a structurally different climate model. The top row shows pseudo-observations sampled from CESM2 with the real 1971 coverage, the middle row the SDA ensemble-mean reconstruction, and the bottom row the CESM2 truth. Panels show anomalies of SST, temperature at 150 m and 700 m, and sea surface height, which is not assimilated and is recovered only through the learned covariances.*
 
 Two inference modes:
 - **OSSE** (`reconstruct_osse.py`) — obs *masks/grids* like the real products, but values come from a withheld MIROC6 member (you have ground truth)
