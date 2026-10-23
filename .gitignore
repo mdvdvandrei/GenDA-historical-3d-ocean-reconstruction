@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+dist/
+build/
+.venv/
+venv/
+.env
+
+# Notebooks / IDE
+.ipynb_checkpoints/
+.vscode/
+.idea/
+*.swp
+
+# Outputs / data (keep repo code-only)
+out*/
+outputs/
+results/
+*.zarr/
+*.pkl
+*.pt
+*.nc
+*.gif
+*.png
+!docs/**/*.png
+
+# Logs / cluster
+*.o[0-9]*
+*.e[0-9]*
+slurm-*.out
+*.log
+runs/
+checkpoints/
+tensorboard/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local notebooks (not for repo)
+en4_proc*.ipynb
+*.ipynb

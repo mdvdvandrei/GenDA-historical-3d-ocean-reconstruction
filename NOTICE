@@ -1,0 +1,34 @@
+GenDA historical 3D ocean reconstruction
+========================================
+
+Copyright 2025–2026 GenDA contributors
+
+This repository is licensed under Apache-2.0 (see LICENSE.txt).
+
+
+Third-party code
+----------------
+
+1) src/cbottle/
+   From NVIDIA cBottle (Apache-2.0):
+     https://github.com/NVlabs/cBottle
+   Upstream commit used when this tree was snapshotted:
+     25c7b7ea3fad36015be0f5a84eaa0408145785eb
+   Status in this repo: copied for training / checkpoint support; package
+   __init__.py was thinned (no SuperResolutionModel re-export). Individual
+   modules under src/cbottle/ otherwise match that commit except for empty
+   __init__.py stubs added for packaging.
+
+   Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES.
+   See SPDX headers in those files.
+
+2) scripts/sda/score.py
+   Score-based Data Assimilation utilities descending from
+   Rozet & Louppe, NeurIPS 2023:
+     https://arxiv.org/abs/2306.10574
+     https://github.com/francois-rozet/sda
+   File carries NVIDIA/cBottle-style Apache-2.0 headers as present in the
+   local cBottle scripts/sda copy this tree was taken from.
+
+Everything else under scripts/ (data prep, training entrypoints, OSSE /
+real-obs reconstruction, reconstruct_common.py) is GenDA project code.

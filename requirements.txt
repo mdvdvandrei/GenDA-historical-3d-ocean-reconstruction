@@ -1,0 +1,28 @@
+# Core
+torch>=2.5.0
+numpy>=1.25.0
+scipy>=1
+pandas>=2.2.3
+xarray>=2025.3.1
+zarr>=3.0.7
+netCDF4>=1.7.0
+h5netcdf>=1.6.1
+cftime>=1.6.4.post1
+
+# Grids / geospatial
+earth2grid>=2025.6.1
+cartopy>=0.24.1
+
+# Training / models
+nvidia-physicsnemo>=1.1.0
+torchmetrics>=1.0.0
+tensorboard>=2.16.0
+
+# Viz / utilities
+matplotlib>=3
+Pillow>=10.0.0
+tqdm>=4.67.1
+psutil>=6.0.0
+python-dotenv>=1.1.0
+s3fs>=2025.3.2
+zict>=3.0.0

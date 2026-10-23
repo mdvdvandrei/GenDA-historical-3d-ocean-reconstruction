@@ -1,0 +1,156 @@
+# Settings from the actual train / SDA runs. Paths are placeholders.
+
+# train_ocean_prior.py  →  network-snapshot-001184000.pkl
+training:
+  script: scripts/train_ocean_prior.py
+  name: miroc6_profiles_26ch_7m_perpixel_singlenode_fixed_dataset_detrended_drift_corrected
+
+  data:
+    miroc_zarr_path: /path/to/miroc6_profiles_detrended.zarr
+    climatology_path: /path/to/miroc6_profiles_climatology_detrended.pkl
+    apply_climatology: true
+    n_val_members: 5          # last N historical members held out
+    # train = remaining historical members + all piControl
+
+  model:
+    out_channels: 26          # 2×10 depth (thetao, so) + 6 surface
+    time_window_months: 7     # T = 7 monthly frames
+    model_channels: 128
+    condition_channels: 0     # unconditional (calendar embeddings only)
+    hpx_level: 6
+
+  optimization:
+    batch_size: 32
+    batch_gpu: 8              # 4 GPUs × 8
+    lr: 0.00014142            # 1e-4 * sqrt(32/16)
+    lr_min: 1.0e-6
+    lr_rampup_img: 20000
+    lr_flat_imgs: 2000000
+    lr_decay_imgs: 1000000
+    ema_halflife_kimg: 500
+    bf16: true
+
+  diffusion:
+    noise_distribution: log_normal
+    p_mean: -1.2
+    p_std: 1.2
+    sigma_min: 0.002
+    sigma_max: 1000.0
+    sigma_data: 0.5           # EDM scaling after per-pixel climatology
+
+  schedule:
+    total_ticks: 187
+    steps_per_tick: 500       # ~3M images total
+    snapshot_ticks: 2
+    state_dump_ticks: 2
+    dataloader_num_workers: 2
+    dataloader_prefetch_factor: 4
+    seed: 0
+
+  example_cli: |
+    torchrun --standalone --nproc_per_node=4 scripts/train_ocean_prior.py \
+      --name miroc6_profiles_26ch_7m_perpixel_singlenode_fixed_dataset_detrended_drift_corrected \
+      --output_dir /path/to/training-runs \
+      --loop.miroc_zarr_path /path/to/miroc6_profiles_detrended.zarr \
+      --loop.apply_climatology \
+      --loop.climatology_path /path/to/miroc6_profiles_climatology_detrended.pkl \
+      --loop.batch_gpu 8 --loop.batch_size 32 \
+      --loop.total_ticks 187 --loop.steps_per_tick 500 \
+      --loop.snapshot_ticks 2 --loop.state_dump_ticks 2 \
+      --loop.dataloader_num_workers 2 --loop.dataloader_prefetch_factor 4 \
+      --loop.time_window_months 7 \
+      --loop.network.model_channels 128 \
+      --loop.lr 0.00014142 \
+      --loop.lr_rampup_img 20000 \
+      --loop.lr_flat_imgs 2000000 \
+      --loop.lr_decay_imgs 1000000
+
+
+# reconstruct_osse.py  (n=0.15, g=0.001, 128 steps)
+inference_osse:
+  script: scripts/reconstruct_osse.py
+  checkpoint: /path/to/network-snapshot-001184000.pkl
+  zarr_path: /path/to/miroc6_profiles_detrended.zarr
+  climatology: /path/to/miroc6_profiles_climatology_detrended.pkl
+  member: r47i1p1f1
+  train_ratio: 1.0
+
+  period:
+    start_date: "1950-01"
+    end_date: "2014-12"
+
+  sampler:
+    steps: 128
+    noise_obs_std: 0.15
+    gamma: 0.001
+    corrections: 0
+    tau: 0.3
+    output_frames: 5
+    chunk_windows: 2
+    use_bf16: true
+    seed: 448
+
+  ensemble:
+    n_ensemble: 8
+
+  example_cli: |
+    torchrun --standalone --nproc_per_node=4 scripts/reconstruct_osse.py \
+      --checkpoint /path/to/network-snapshot-001184000.pkl \
+      --zarr_path /path/to/miroc6_profiles_detrended.zarr \
+      --climatology /path/to/miroc6_profiles_climatology_detrended.pkl \
+      --member r47i1p1f1 --train_ratio 1.0 \
+      --start_date 1950-01 --end_date 2014-12 \
+      --noise_obs_std 0.15 --gamma 0.001 \
+      --steps 128 --corrections 0 --tau 0.3 \
+      --output_frames 5 --chunk_windows 2 \
+      --n_ensemble 8 --ensemble_id 0 \
+      --seed 448 --use_bf16 --no_gifs \
+      --output_dir out_osse
+
+
+# reconstruct_real_obs.py  (1993–2020 + SSH)
+inference_real_obs:
+  script: scripts/reconstruct_real_obs.py
+  checkpoint: /path/to/network-snapshot-001184000.pkl
+  climatology: /path/to/miroc6_profiles_climatology_detrended.pkl
+
+  period:
+    start_date: "1993-01"
+    end_date: "2020-12"
+
+  observations:
+    use_ssh_obs: true
+    ssh_coarsen_deg: 5.0
+    ssh_only: false
+    # hadsst / crutem / icoads / en4 / duacs paths via CLI flags
+
+  sampler:
+    steps: 128
+    noise_obs_std: 0.15
+    gamma: 0.001
+    corrections: 0
+    tau: 0.3
+    output_frames: 5
+    chunk_windows: 2
+    use_bf16: true
+    seed: 448
+    parallel_sda: true
+    use_checkpoint: true
+
+  ensemble:
+    n_ensemble: 8
+
+  example_cli: |
+    python scripts/reconstruct_real_obs.py \
+      --checkpoint /path/to/network-snapshot-001184000.pkl \
+      --climatology /path/to/miroc6_profiles_climatology_detrended.pkl \
+      --start_date 1993-01 --end_date 2020-12 \
+      --use_ssh_obs \
+      --duacs_path /path/to/ssh_duacs_1deg_monthly_1993_onwards.nc \
+      --en4_zarr_path /path/to/en4_gridded_5deg_monthly.zarr \
+      --noise_obs_std 0.15 --gamma 0.001 \
+      --steps 128 --corrections 0 --tau 0.3 \
+      --output_frames 5 --chunk_windows 2 \
+      --n_ensemble 8 --ensemble_id 0 \
+      --seed 448 --use_bf16 --no_gifs \
+      --output_dir out_real_obs_ssh
