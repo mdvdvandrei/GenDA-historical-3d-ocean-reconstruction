@@ -35,13 +35,6 @@ def get_model(
     *,
     allow_second_order_derivatives: bool = False,
 ) -> torch.nn.Module:
-    print(f"[DEBUG get_model] Received config:")
-    print(f"  architecture={config.architecture}")
-    print(f"  out_channels={config.out_channels}")
-    print(f"  condition_channels={config.condition_channels}")
-    print(f"  time_length={config.time_length}")
-    print(f"  in_channels will be: {config.out_channels + config.condition_channels}")
-    
     if allow_second_order_derivatives:
         use_apex_groupnorm = False
         padding_backend = PaddingBackends.indexing

@@ -12,12 +12,17 @@ Third-party code
 1) src/cbottle/
    From NVIDIA cBottle (Apache-2.0):
      https://github.com/NVlabs/cBottle
-   Upstream commit used when this tree was snapshotted:
-     25c7b7ea3fad36015be0f5a84eaa0408145785eb
-   Status in this repo: copied for training / checkpoint support; package
-   __init__.py was thinned (no SuperResolutionModel re-export). Individual
-   modules under src/cbottle/ otherwise match that commit except for empty
-   __init__.py stubs added for packaging.
+   Closest upstream commit to this snapshot:
+     57d45b10d6ed7b9f9a16ac0e92238ee5b52c9979 (2025-11-25)
+   Modified in this repository:
+     - __init__.py: SuperResolutionModel re-export removed.
+     - datasets/dataset_3d.py: added the "miroc" VariableConfig (tas, sst)
+       used by scripts/train_miroc6_base.py.
+     - training/video/frame_masker.py: the mask is cast to the target dtype
+       before it is concatenated with the condition.
+     - Empty __init__.py stubs added for packaging (config/,
+       config/training/, datasets/, training/, training/video/).
+   All other modules under src/cbottle/ are unmodified.
 
    Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES.
    See SPDX headers in those files.
@@ -30,5 +35,11 @@ Third-party code
    File carries NVIDIA/cBottle-style Apache-2.0 headers as present in the
    local cBottle scripts/sda copy this tree was taken from.
 
-Everything else under scripts/ (data prep, training entrypoints, OSSE /
+3) scripts/training_loop_base.py
+   Unmodified copy of scripts/train_coarse.py from NVIDIA cBottle
+   (Apache-2.0), upstream commit bf09a97b165cfb3716deb0127b81db7b3feb72fe
+   (2025-11-07). Used as the base class for the GenDA training loops.
+
+Everything else under scripts/ (data prep, the training loops in
+train_miroc6_base.py and train_ocean_prior.py, the dataloader, OSSE /
 real-obs reconstruction, reconstruct_common.py) is GenDA project code.

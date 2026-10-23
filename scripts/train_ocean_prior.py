@@ -178,7 +178,6 @@ class MirocProfilesTrainingLoop(train_base.MirocTrainingLoop):
             label_dropout=0.0,
             calendar_include_legacy_bug=self.network.include_legacy_calendar_bug,
         )
-        print(f"[DEBUG model_config] PROFILES UNCONDITIONAL: out={out_channels}, cond=0, time={time_len}")
         return config
 
     def _get_batch_info(self):

@@ -14,7 +14,6 @@ earth2grid>=2025.6.1
 cartopy>=0.24.1
 
 # Training / models
-nvidia-physicsnemo>=1.1.0
 torchmetrics>=1.0.0
 tensorboard>=2.16.0
 

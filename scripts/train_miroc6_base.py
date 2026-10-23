@@ -71,7 +71,6 @@ from cbottle.datasets.base import BatchInfo, TimeUnit
 
 # Debug: print where cbottle is loaded from
 import cbottle.models
-print(f"[DEBUG] cbottle.models loaded from: {cbottle.models.__file__}")
 from cbottle.datasets import dataset_2d
 from cbottle.dataclass_parser import parse_args
 from cbottle import distributed as dist
@@ -108,7 +107,6 @@ def unconditional_masking_config() -> MaskingConfig:
     )
 
 
-print("[DEBUG] Loading MirocTrainingLoop class definition...")
 
 @dataclasses.dataclass
 class MirocTrainingLoop(training_loop_base.TrainingLoop):
@@ -185,7 +183,6 @@ class MirocTrainingLoop(training_loop_base.TrainingLoop):
         time_len = self.time_window_months
         is_video = time_len > 1
         
-        print(f"[DEBUG model_config] out_channels={out_channels}, time_len={time_len}, is_video={is_video}")
         
         if is_video:
             # Video mode: condition on mask + previous predictions
@@ -200,7 +197,6 @@ class MirocTrainingLoop(training_loop_base.TrainingLoop):
                 label_dropout=0.0,
                 calendar_include_legacy_bug=self.network.include_legacy_calendar_bug,
             )
-            print(f"[DEBUG model_config] Returning VIDEO config: in={out_channels+condition_channels}, out={out_channels}")
             return config
         else:
             # Image mode: truly unconditional
@@ -212,24 +208,12 @@ class MirocTrainingLoop(training_loop_base.TrainingLoop):
                 calendar_include_legacy_bug=self.network.include_legacy_calendar_bug,
                 enable_classifier=False,
             )
-            print(f"[DEBUG model_config] Returning IMAGE config: in={out_channels}, out={out_channels}")
             return config
 
     def get_dataset(self, train: bool):
         """
         Get MIROC6 dataset for unconditional training.
         """
-        rank = dist.get_rank()
-        world_size = dist.get_world_size()
-
-        split = "train" if train else "test"
-        chunk = 512 if train else 64
-        
-        # Debug: print frame masker info
-        frame_masker = self._get_frame_masker(train)
-        if rank == 0:
-            print(f"[DEBUG] get_dataset(train={train}): time_length={self.time_length}, frame_masker={frame_masker}")
-
         raise NotImplementedError(
             "Surface MIROC6 dataloader is not included. "
             "Use train_ocean_prior.py for profiles training."
@@ -239,11 +223,6 @@ class MirocTrainingLoop(training_loop_base.TrainingLoop):
         """Override to ensure correct model config is used."""
         import cbottle.models
         config = self.model_config
-        print(f"[DEBUG get_network] Creating network with config:")
-        print(f"  out_channels={config.out_channels}")
-        print(f"  condition_channels={config.condition_channels}")
-        print(f"  time_length={config.time_length}")
-        print(f"  Total input channels={config.out_channels + config.condition_channels}")
         return cbottle.models.get_model(config)
     
     def get_loss_fn(self):
@@ -264,11 +243,6 @@ class MirocTrainingLoop(training_loop_base.TrainingLoop):
             classifier_weight=self.ibtracs_loss_weight,
         )
     
-    def _setup_networks(self):
-        """Override to add debug output."""
-        print(f"[DEBUG _setup_networks] Called! self.model_config type: {type(self).model_config}")
-        print(f"[DEBUG _setup_networks] self.get_network: {self.get_network}")
-        super()._setup_networks()
     
     def setup(self):
         """Initialize training loop with MIROC6 settings."""
@@ -913,11 +887,7 @@ def main():
     print(f"Output channels: {loop.out_channels}")
     print(f"Output dir: {loop.run_dir}")
     
-    # Debug: Check which model_config is being used
-    print(f"[DEBUG] model_config method: {type(loop).model_config}")
-    print(f"[DEBUG] MRO: {[c.__name__ for c in type(loop).__mro__]}")
-    
-    # Debug: print model config before setup
+    # Print model config before setup
     mc = loop.model_config
     print(f"Model config: out_channels={mc.out_channels}, condition_channels={mc.condition_channels}, label_dim={mc.label_dim}")
     print(f"Model config total input channels: {mc.out_channels + mc.condition_channels}")
