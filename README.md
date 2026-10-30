@@ -4,9 +4,30 @@ Train a diffusion model on monthly ocean/atmosphere profiles, then use score-bas
 
 Code for A. Medvedev, V. Cooper and G. Manucharyan, *Reconstructing global ocean from the historical observing record with a score-based prior* (preprint coming soon).
 
-![Cross-model test, July 1971](docs/cesm2_test_july1971.png)
+<p align="center">
+  <a href="docs/hero.mp4"><img src="docs/hero.webp" alt="Monthly SDA reconstruction from January 1960 to December 1980 compared with the truth" width="100%"></a>
+</p>
 
-*Cross-model test for July 1971. The prior is trained on MIROC6 and the truth comes from CESM2, a structurally different climate model. The top row shows pseudo-observations sampled from CESM2 with the real 1971 coverage, the middle row the SDA ensemble-mean reconstruction, and the bottom row the CESM2 truth. Panels show anomalies of SST, temperature at 150 m and 700 m, and sea surface height, which is not assimilated and is recovered only through the learned covariances.*
+*Cross-model test, monthly from January 1960 to December 1980. The prior is trained on MIROC6 and the truth comes from CESM2, a structurally different climate model. The top row shows pseudo-observations sampled from CESM2 with the real historical coverage of each month, the middle row the SDA ensemble mean, and the bottom row the CESM2 truth. Panels show anomalies of SST, temperature at 150 m and 700 m, and sea surface height, which is not assimilated and is recovered only through covariances learned by the prior. Click the animation for the full-resolution MP4.*
+
+## Overview
+
+Most of what we know about the historical ocean below the surface comes from a sparse and uneven observing record. Before Argo, subsurface profiles cover a small fraction of the ocean, concentrated along shipping lanes and in the Northern Hemisphere, and the mid-20th century ocean interior is poorly constrained. Classical reanalyses fill these gaps with a dynamical model and simplified error covariances, and existing products disagree most where observations are scarcest.
+
+GenDA takes a generative approach. We train a video diffusion model (NVIDIA cBottle architecture) on the MIROC6 large ensemble to learn the joint distribution of monthly 3D ocean temperature and salinity, surface ocean fields and near-surface atmosphere on a HEALPix grid. Score-based data assimilation then conditions this prior on the historical record (HadSST4 sea surface temperature, CRUTEM5 land air temperature, sea level pressure, and EN4 ocean temperature and salinity profiles) and produces an ensemble of 3D ocean states from 1950 to 2020.
+
+What we find:
+- With the real historical sampling, the reconstruction reproduces the large-scale structure of subsurface temperature anomalies at 150 m and 700 m, including regions without any profiles.
+- Sea surface height is never assimilated, yet it is recovered through the covariances the prior learns between the surface, the interior and the atmosphere.
+- The skill carries over to a cross-model test where the truth comes from CESM2, a structurally different climate model, so the prior is not simply reproducing the model it was trained on.
+- Errors fall into two regimes. Where observations are sparse and disagree with the prior, the reconstruction is biased. Where observations are absent, the reconstruction reverts to the prior.
+- The ensemble is underdispersive, which we attribute mainly to the sampler and to how the observation covariance is approximated.
+
+## Method
+
+![Method schematic](docs/method_schematic.jpg)
+
+*(a) The state is a 7-month sequence of 26 channels on 49,152 HEALPix pixels, with temperature and salinity on 10 ocean levels, surface ocean fields and near-surface atmosphere. SST, land air temperature, sea level pressure and EN4 profiles are assimilated, while SSS, SSH and sea ice are constrained only by the prior. (b) Each reverse diffusion step combines the prior score from the trained denoiser with the gradient of the observation likelihood. The record is processed in 7-month windows with a 5-month stride and a 2-month overlap, shown here on a toy example from pure noise (n = 128) to the final sample (n = 0).*
 
 Two inference modes:
 - **OSSE** (`reconstruct_osse.py`) — obs *masks/grids* like the real products, but values come from a withheld MIROC6 member (you have ground truth)
