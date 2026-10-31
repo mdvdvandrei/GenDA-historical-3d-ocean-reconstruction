@@ -1,6 +1,6 @@
 # GenDA: Historical 3D Ocean Reconstruction
 
-Train a diffusion model on monthly ocean/atmosphere profiles, then use score-based data assimilation (SDA) to reconstruct 3D fields from sparse observations.
+**The ocean has absorbed most of the heat from global warming, yet before Argo its interior was barely observed. GenDA asks how much of the past 3D ocean the historical record can actually pin down, and answers it by conditioning a diffusion-model prior on observations instead of running an ocean model.**
 
 Code for A. Medvedev, V. Cooper and G. Manucharyan, *Reconstructing global ocean from the historical observing record with a score-based prior* (preprint coming soon).
 
@@ -10,18 +10,9 @@ Code for A. Medvedev, V. Cooper and G. Manucharyan, *Reconstructing global ocean
 
 *Cross-model test, monthly from January 1960 to December 1980. The prior is trained on MIROC6 and the truth comes from CESM2, a structurally different climate model. The top row shows pseudo-observations sampled from CESM2 with the real historical coverage of each month, the middle row the SDA ensemble mean, and the bottom row the CESM2 truth. Panels show anomalies of SST, temperature at 150 m and 700 m, and sea surface height, which is not assimilated and is recovered only through covariances learned by the prior. Click the animation for the full-resolution MP4.*
 
-## Overview
+## Abstract
 
-Most of what we know about the historical ocean below the surface comes from a sparse and uneven observing record. Before Argo, subsurface profiles cover a small fraction of the ocean, concentrated along shipping lanes and in the Northern Hemisphere, and the mid-20th century ocean interior is poorly constrained. Classical reanalyses fill these gaps with a dynamical model and simplified error covariances, and existing products disagree most where observations are scarcest.
-
-GenDA takes a generative approach. We train a video diffusion model (NVIDIA cBottle architecture) on the MIROC6 large ensemble to learn the joint distribution of monthly 3D ocean temperature and salinity, surface ocean fields and near-surface atmosphere on a HEALPix grid. Score-based data assimilation then conditions this prior on the historical record (HadSST4 sea surface temperature, CRUTEM5 land air temperature, sea level pressure, and EN4 ocean temperature and salinity profiles) and produces an ensemble of 3D ocean states from 1950 to 2020.
-
-What we find:
-- With the real historical sampling, the reconstruction reproduces the large-scale structure of subsurface temperature anomalies at 150 m and 700 m, including regions without any profiles.
-- Sea surface height is never assimilated, yet it is recovered through the covariances the prior learns between the surface, the interior and the atmosphere.
-- The skill carries over to a cross-model test where the truth comes from CESM2, a structurally different climate model, so the prior is not simply reproducing the model it was trained on.
-- Errors fall into two regimes. Where observations are sparse and disagree with the prior, the reconstruction is biased. Where observations are absent, the reconstruction reverts to the prior.
-- The ensemble is underdispersive, which we attribute mainly to the sampler and to how the observation covariance is approximated.
+The ocean absorbs most of the heat trapped by greenhouse gases, but until the mid-2000s it was measured only sparsely. It remains unclear how much of the past ocean, including its interior, these measurements can determine. We address this question with score-based data assimilation, in which a diffusion model trained on MIROC6 climate-model simulations learns the distribution of coupled ocean–atmosphere trajectories and is conditioned on historical observations, without running a general circulation model (GCM). Three experiments separate the sources of error: a perfect-model test against withheld MIROC6 members, a cross-model test against CESM2, and a real-world reconstruction over 1950–2020 from surface temperature, sea-level pressure, and subsurface temperature and salinity profiles. In model-world tests, the historical record determines the large-scale upper ocean back to 1950, including interior modes such as the Pacific thermocline tilt and Labrador Sea temperature at 1500 m, recovered through their learned covariance with the observed fields. In the upper ocean this covariance transfers across structurally different GCMs and, where independent data allow a test, to the real ocean. Unassimilated sea-surface height tracks satellite altimetry at large scales (median correlation 0.41), and basin-scale heat content agrees with observational products after 1990, with an earlier warm offset that is largest in the South Pacific. As observations thin out, the reconstruction increasingly follows the prior. In the cross-model test this shows up as modest biases in 300–700 m heat content and Arctic sea-ice trends and as a missed Antarctic sea-ice decline. The ensemble is underdispersed in all three experiments.
 
 ## Method
 
