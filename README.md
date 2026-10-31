@@ -1,6 +1,6 @@
 # GenDA: Historical 3D Ocean Reconstruction
 
-**The ocean has absorbed most of the heat from global warming, yet before Argo its interior was barely observed. GenDA asks how much of the past 3D ocean the historical record can actually pin down, and answers it by conditioning a diffusion-model prior on observations instead of running an ocean model.**
+**A video diffusion model (cBottle architecture) trained on the MIROC6 large ensemble learns a prior over 7-month sequences of the coupled ocean–atmosphere state, with 26 channels (temperature and salinity on 9 levels from 0 to 2000 m plus a deep layer, 6 surface fields) on a HEALPix level-6 grid. Score-based data assimilation (SDA) conditions this prior on HadSST4, CRUTEM5, sea-level pressure and EN4 profiles in overlapping windows, producing ensemble 3D reconstructions of 1950–2020 without running a GCM.**
 
 Code for A. Medvedev, V. Cooper and G. Manucharyan, *Reconstructing global ocean from the historical observing record with a score-based prior* (preprint coming soon).
 
