@@ -2,7 +2,7 @@
 
 **The ocean has absorbed most of the heat from global warming, yet before Argo its interior was barely observed. We use generative data assimilation to combine ocean dynamics learned by a diffusion model from climate-model simulations with historical observations, producing an ensemble estimate of the global 3D ocean state from 1950 to 2020 without running an ocean model.**
 
-Code for A. Medvedev, V. Cooper and G. Manucharyan, *Reconstructing global ocean from the historical observing record with a score-based prior* (preprint coming soon).
+Code for A. Medvedev, V. Cooper and G. Manucharyan, [*Reconstructing the global ocean from the historical observing record with generative data assimilation*](https://doi.org/10.22541/essoar.15011822/v1) (preprint, ESS Open Archive).
 
 <p align="center">
   <a href="docs/hero.mp4"><img src="docs/hero.webp" alt="Monthly SDA reconstruction from January 1960 to December 1980 compared with the truth" width="100%"></a>
